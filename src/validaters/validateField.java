@@ -42,23 +42,52 @@ public class validateField {
     }
 
     public static boolean isContactValid(String contact){
-        if (contact == null || contact.isBlank()) {
+        if (contact == null || contact.isBlank()){
             return false;
         }
-        int len = contact.length();
 
-        if (len < 7 || len > 15) {
-            return false;
-        }
-        if (!Character.isDigit(contact.charAt(0)) && contact.charAt(0) != '+'){
-            return false;
-        }
-        for (int i = 1; i < len; i++) {
-            if (!Character.isDigit(contact.charAt(i))) {
+        int len = contact.length();
+        boolean isSpecCharRep = false;
+        int digits = 0;
+
+        char ch = contact.charAt(0);
+        if (! Character.isDigit(ch)){
+            if (ch != '+' && ch != '('){
                 return false;
             }
+            isSpecCharRep = true;
+        }else{
+            digits = 1;
         }
-        return true;
+        int openIdx = contact.indexOf('(');
+        int closeIdx = contact.indexOf(')');
+        if (openIdx > closeIdx || (openIdx == -1 && closeIdx != -1)){
+            return false;
+        }
+        if (openIdx != contact.lastIndexOf('(') || closeIdx != contact.lastIndexOf(')')){
+            return false;
+        }
+
+        for (int i = 1 ; i < len ; i ++){
+            if (i == openIdx || i == closeIdx){
+                continue;
+            }
+            ch = contact.charAt(i);
+            if (Character.isDigit(ch)){
+                isSpecCharRep = false;
+                digits++;
+            }else{
+                if (isSpecCharRep){
+                    return false;
+                }
+                if (ch != '-' && ch != ' '){
+                    return false;
+                }
+                isSpecCharRep = true;
+            }
+        }if (digits >= 7 && digits <= 15){
+            return true;
+        }return false;
     }
 
     public static boolean isEmailValid(String email){
